@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Inside Nginx | Shrawan Poudel</title>
+    <meta name="description" content="Inside Nginx">
+    <meta name="author" content="Shrawan Poudel">
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/theme/black.min.css"
+          id="theme">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/lib/css/zenburn.min.css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+    <!--<script>
+        if (window.location.search.match(/print-pdf/gi)) {
+            var link = document.createElement('link');
+
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/print/pdf.min.css';
+            document.getElementsByTagName('head')[0].appendChild(link);
+        }
+    </script>-->
+
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+<div class="reveal">
+    <div class="slides">
+
+        <section>
+            <img src="nginx-logo.png" width="300" height="200"/>
+            <h1>Inside Nginx</h1>
+            <p>- 👨‍💻 Shrawan Poudel </p>
+        </section>
+        <section>
+            <ul>
+                <li>pronounced like "engine-ex"</li>
+                <li>open source ?
+                    <ul>
+                        <li>Where does nginx Plus lie ?</li>
+                    </ul>
+                </li>
+                <li>asynchronous, event-driven approach</li>
+                <li>web server?
+                    <ul>
+                        <li>reverse proxy</li>
+                        <li>HTTP cache</li>
+                        <li>Load Balancer</li>
+                        <li>Web Sockets</li>
+                        <li>and many more ...</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+        <section>
+            <section>
+                <h1>Am i only using Nginx?</h1>
+            </section>
+            <section>
+                <h1>No</h1>
+                <ul>
+                    <li>Insight Workshop</li>
+                    <li>CloudFlare</li>
+                    <li>Adobe</li>
+                    <li>NASA</li>
+                    <li>....[Truncated a very long list]</li>
+                </ul>
+                <br>
+                <a href="https://www.nginx.com/success-stories/">https://www.nginx.com/success-stories/</a>
+                <a href="https://stack.g2.com/nginx">https://stack.g2.com/nginx</a>
+            </section>
+        </section>
+        <section>
+            <section>
+                <h3>Lets Dive [nginx open source]</h3>
+                <span>~ apt-get install nginx</span>
+                <hr>
+                <h6># or any way you like 😛</h6>
+            </section>
+            <section>
+                <h3>Master and Worker Processes</h3>
+                <ul>
+                    <li>one master and one more more worker</li>
+                    <li>worker_processes directive in nginx.conf</li>
+                </ul>
+            </section>
+            <section>
+                <h3>Controlling NGINX</h3>
+                <p>~ nginx -s SIGNAL_LISTS</p>
+                <ul>
+                    <li>quit</li>
+                    <li>reload</li>
+                    <li>stop</li>
+                </ul>
+            </section>
+        </section>
+        <section>
+            <section>
+                Configs
+                <p>~ cat /etc/nginx/nginx.conf</p>
+            </section>
+            <section>
+                Top level directives (contexts)
+                <ul>
+                    <li>events - General connection processing</li>
+                    <li>http   - HTTP Traffic</li>
+                    <li>mail   - Mail Traffic</li>
+                    <li>steam  - TCP /UDP Traffic</li>
+                </ul>
+            </section>
+            <section>
+                Virtual Servers
+                <p>use : server block</p>
+                <pre><code>
+http {
+        # Configuration specific to
+        # HTTP and affecting all virtual servers
+        server {
+            # configuration of TCP virtual server 1
+        }
+        server {
+            # configuration of TCP virtual server 2
+        }
+}
+                </code></pre>
+            </section>
+            <section>
+                Inheritance?
+            </section>
+            <section>
+                Test and Reload
+                <p>~ nginx -s reload</p>
+            </section>
+            <section>
+                Oops!! Forgot to Test<br>
+                I missed , but dont you miss it 🤐
+                <p>~ nginx -t</p>
+            </section>
+        </section>
+        <section>
+            <section>
+                Webserver
+                <p>Serving static content</p>
+                <pre><code>
+server {
+        server_name
+        listen 80;
+        root
+        location
+}
+
+location /static/ {
+        # just do anything ☺️
+}
+location /media/ {
+        # just do anything ☺️
+}
+                </code></pre>
+            </section>
+            <section>
+                404 and autoindex in directory
+                <pre><code>
+~ ls /home/static/
+     - ok.html
+
+# nginx server block
+server  {
+    root /home/static/;
+    location / {
+    }
+}
+
+~ curl yourdomain.com/
+    - Got a 404 ?
+
+                </code></pre>
+            </section>
+            <section>
+                <pre><code>
+server  {
+        root /home/static/;
+        location / {
+           autoindex on;
+        }
+}
+                </code></pre>
+                <p>Got a auto generated directory listing ? Cool 😎</p>
+            </section>
+            <section>
+                Ok , That was cool , But shouldn't i be able to create a custom index ? 😕
+            </section>
+            <section>
+                <p>index to the rescue!!!</p>
+                <pre><code>
+server  {
+        root /home/static/;
+        location / {
+              index ok.html;
+        }
+}
+                </code></pre>
+            </section>
+            <section>
+                root vs alias
+                <pre><code>
+server  {
+        location /static-root/ {
+                root /home/ubuntu/static-root/;
+        }
+        location /static-alias/ {
+                alias /home/ubuntu/static-alias/;
+         }
+}
+                </code></pre>
+            </section>
+            <section>
+                Contd .......
+                <pre><code>
+/static-root/
+        - appends the location
+        - full path : /home/ubuntu/static-root/static-root/
+        - Correct it:
+                - root /home/ubuntu/
+/static-alias/
+        - location parts get dropped
+        - full path: /home/ubuntu/static-alias/
+        - Bonus:
+                Remember the trailing slash on alias
+
+                </code></pre>
+            </section>
+            <section>
+                Trying Several Options
+                <pre><code>
+server {
+    root /home/ubuntu/
+    location /images/ {
+          try_files $uri /images/default.gif;
+    }
+}
+server {
+       root /home/ubuntu/
+       location / {
+             try_files $uri $uri/ $uri.html =404;
+       }
+}
+                </code></pre>
+            </section>
+            <section>
+                Can also redirect to named location
+                <pre><code>
+server {
+    location / {
+          try_files $uri $uri/ @backend;
+     }
+
+    location @backend {
+          proxy_pass http://backend.example.com;
+    }
+
+}
+                </code></pre>
+            </section>
+        </section>
+        <section>
+            <section>
+                Nginx Reverse Proxy
+                <ul>
+                    <li>sends request to specified proxied server</li>
+                    <li>fetches the response and sends back to client</li>
+                    <li>Even to non-HTTP servers 😮</li>
+                    <li>Supported protocols<ul>
+                        <li>FastCGI</li>
+                        <li>uwsgi</li>
+                        <li>SCGI</li>
+                        <li>memcached</li>
+                    </ul></li>
+                    <li>Use proxy_pass directive</li>
+                </ul>
+            </section>
+            <section>
+                Contd....
+                <pre><code>
+location / {
+    proxy_pass http://localhost:8085;
+}
+                </code></pre>
+            </section>
+            <section>
+                <p>To pass a request to a non-HTTP proxied server,
+                    the appropriate **_pass directive should be used:
+                </p>
+                <ul>
+                    <li>fastcgi_pass passes a request to a FastCGI server</li>
+                    <li>uwsgi_pass passes a request to a uwsgi server
+                    </li>
+                    <li>scgi_pass passes a request to an SCGI server
+                    </li>
+                    <li>memcached_pass passes a request to a memcached server
+                    </li>
+                </ul>
+                <a href="https://uwsgi-docs.readthedocs.io/en/latest/tutorials/Django_and_nginx.html#configure-nginx-for-your-site">uwsgi with Nginx</a>
+            </section>
+            <section>
+                Passing Request Headers
+                <ul>
+                    <li>Redefines two header fields<ul>
+                        <li>Host --> $proxy_host</li>
+                        <li>Connection -> close</li>
+                    </ul>Nginx gets rid of any empty headers</li>
+                    <li>Nginx, by default, will consider any header that contains underscores as invalid<ul>
+                        <li>use underscores_in_headers directive to “on”</li>
+                    </ul></li>
+                </ul>
+            </section>
+            <section>
+                Setting or Resetting Headers
+                <p>use proxy_set_header</p>
+                <pre><code>
+proxy_set_header X-Forwarded-Proto $scheme;
+proxy_set_header X-Real-IP $remote_addr;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header Accept-Encoding "";
+                </code></pre>
+            </section>
+            <section>
+                You forgot me 😥
+            </section>
+            <section>
+                Sorry !!<br>
+                but, what ? 🤔
+            </section>
+            <section>
+                proxy_bind
+                <pre><code>
+location / {
+     proxy_bind 127.0.0.2;
+     proxy_pass http://example.com/;
+}
+
+                </code></pre>
+            </section>
+        </section>
+        <section>
+            Compression and Decompression
+            <ul>
+                <li>Reduces size of transmitted data</li>
+                <li>But because of ,Runtime compression,can affect performance</li>
+                <li>set directive gzip to "on"</li>
+                <li>By default, NGINX compresses responses only with MIME type text/html</li>
+                <li>Add additional types<ul>
+                    <li>
+                    gzip_types text/plain application/xml;
+                    </li>
+                </ul></li>
+            </ul>
+        </section>
+        <section>
+            Restricting Access by IP
+            <p>use of allow or deny directive</p>
+            <pre><code>
+location /api {
+     #...
+     deny  192.168.1.2;
+     allow 192.168.1.1/24;
+     allow 127.0.0.1;
+     deny  all;
+}
+            </code></pre>
+            <small>Note the Order of allow and deny directive</small>
+        </section>
+        <section>
+            <section>
+                HTTP Load Balancing
+                <p>Group the servers with upstream directive</p>
+                <pre><code>
+upstream backend {
+         server backend1.example.com;
+         server backend2.example.com;
+         server 192.0.0.1;
+}
+server {
+       location / {
+           proxy_pass http://backend;
+       }
+}
+            </code></pre>
+            </section>
+            <section>
+                <p>Load balancing Method</p>
+                <ul>
+                    <li>Round Robin (default)</li>
+                    <li>Least Connections<ul><li></li>least_conn;</ul></li>
+                    <li>IP Hash <ul><li>ip_hash;</li></ul></li>
+                </ul>
+            </section>
+            <section>
+                Something More !! 😍
+                <ul>
+                    <li>Sever weights <br>(server backend1.example.com weight=5;)</li>
+                    <li>Sever Slow -Start <br>(server backend1.example.com slow_start=30s;)</li>
+                </ul>
+            </section>
+        </section>
+        <section>
+            <section>
+                Logging
+                <p>Nginx Error Log Severity Levels</p>
+                <pre><code>
+- debug - Useful debugging information to help determine where the problem lies.
+- info - Informational messages that aren’t necessary to read but may be good to know.
+- notice - Something normal happened that is worth noting.
+- warn - Something unexpected happened, however is not a cause for concern.
+- error - Something was unsuccessful.
+- crit - There are problems that need to be critically addressed.
+- alert - Prompt action is required.
+- emerg - The system is in an unusable state and requires immediate attention.
+                </code></pre>
+            </section>
+            <section>
+                <h4>Error Log</h4>
+                <ul>
+                    <li>use directive error_log</li>
+                    <li>defaults to: logs/error.log<sup>*</sup></li>
+                    <li>eg: error_log logs/error.log alert; <ul><li>will log alert and emerg</li></ul></li>
+                </ul>
+            </section>
+            <section>
+                <h4>Access Logs</h4>
+                <ul>
+                    <li>NGINX writes information about client requests in the access log right after the request is processed</li>
+                    <li>defaults to: logs/access.log<sup>*</sup></li>
+                    <li>eg: access_log /spool/logs/nginx-access.log;</li>
+                </ul>
+            </section>
+            <section>
+                <h4>Log Formats</h4>
+                <p>use directive log_format</p>
+                <pre>
+                    <code>
+log_format compression '$remote_addr - $remote_user [$time_local] '
+                        '"$request" $status $body_bytes_sent '
+                        '"$http_referer" "$http_user_agent" "$gzip_ratio"';
+#Using this compression log format on access_logs
+access_log /spool/logs/nginx-access.log compression;
+
+                    </code>
+                </pre>
+            </section>
+
+        </section>
+        <section>
+            <section>
+                HTTPS !!!
+                <h1>You need SSL certificate!!</h1>
+            </section>
+            <section><pre><code>
+server {
+access_log /home/ubuntu/logs/nginx_access.log;
+error_log /home/ubuntu/logs/nginx_error.log;
+server_name api.example.com;
+location /static/ {
+alias /home/ubuntu/static/;
+}
+
+if ($host !~* ^(api.example.com)$ ) {
+return 444;
+}
+
+location / {
+.........
+proxy_pass http://127.0.0.1:8085;
+.........
+}
+
+listen 443 ssl;
+ssl_certificate SSL_CERTIFICATE_LOCATION;
+ssl_certificate_key SSL_CERTIFICATE__KEY_LOCATION;
+}
+            </code></pre>
+            </section>
+            <section>
+                Shouldn't i redirect http to https automatically ? 😕
+            </section>
+            <section>
+                <pre><code>
+server {
+    if ($host = api.example.com) {
+        return 301 https://$host$request_uri;
+    }
+	listen 80;
+	server_name api.example.com;
+    return 404;
+}
+                </code></pre>
+            </section>
+        </section>
+        <section>
+            Any Questions <i class="fa fa-question"></i>
+        </section>
+        <section>
+            Let's Jump to Demo 😍
+        </section>
+        <section>
+           <p>
+               Made with 💜 by Shrawan <br>
+               ~ with help of
+           </p>
+            <ul>
+                <li>nginx official docs</li>
+                <li>reveal.js</li>
+            </ul>
+        </section>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/lib/js/head.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/js/reveal.min.js"></script>
+<script>
+    // Full list of configuration options available here:
+    // https://github.com/hakimel/reveal.js#configuration
+    Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: 'linear', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Parallax scrolling
+        // parallaxBackgroundImage: 'background.png',
+        // parallaxBackgroundSize: '2100px 900px',
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [{
+            src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/lib/js/classList.js',
+            condition: function () {
+                return !document.body.classList;
+            }
+        }, {
+            src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/plugin/markdown/marked.js',
+            condition: function () {
+                return !!document.querySelector('[data-markdown]');
+            }
+        }, {
+            src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/plugin/markdown/markdown.min.js',
+            condition: function () {
+                return !!document.querySelector('[data-markdown]');
+            }
+        }, {
+            src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/plugin/highlight/highlight.min.js',
+            async: true,
+            callback: function () {
+                hljs.initHighlightingOnLoad();
+            }
+        }, {
+            src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/plugin/zoom-js/zoom.min.js',
+            async: true,
+            condition: function () {
+                return !!document.body.classList;
+            }
+        }]
+    });
+</script>
+</body>
+</html>
